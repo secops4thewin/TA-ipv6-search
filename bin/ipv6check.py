@@ -24,25 +24,31 @@ class ipv6_search(StreamingCommand):
         if not ipv6re.match(ip_range):
             error_msg = "Invalid ipv6 format of {}.".format(ip_range)
             raise ValueError(error_msg)
+
         # Specify the unicode IP Address
         unicode_iprange = u'{}'.format(ip_range)
-        # ipaddress.ip_address(unicode(ip, "utf-8")) in ipaddress.IPv6Network(unicode(network,"utf-8"))
 
         # Create field_name variable
         field_name = self.field
 
+        # Check to see if the ipv6 network is valid
         is_valid = ipaddress.IPv6Network(unicode_iprange)
+        # If it is valid
         if is_valid:
+            # For each record
             for record in records:
+                # Format the ipv6 address in unicode
                 ipv6address = u'{}'.format(record[field_name])
+                # If ipaddress from Splunk field is in ip range
                 if ipaddress.ip_address(ipv6address) in ipaddress.IPv6Network(unicode_iprange):
+                    # Export the results
                     yield record
         else:
+            # Throw an error message that the range is invalid
             error_msg = "Invalid ipv6 range of {}.".format(ip_range)
             raise ValueError(error_msg)
         
 
 if __name__ == "__main__":
     dispatch(ipv6_search, sys.argv, sys.stdin, sys.stdout, __name__)
-
 
